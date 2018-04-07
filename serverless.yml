@@ -1,0 +1,56 @@
+service: serverless-translations
+
+plugins:
+  - serverless-plugin-typescript
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  stage: dev
+  region: us-east-1
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  api:
+    handler: src/api/serverless.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+  producer:
+    handler: src/producer/serverless.handler
+    environment:
+      token: ${ssm:token~true}
+      CLIENT_ID: ${ssm:CLIENT_ID~true}
+      CLIENT_SECRET: ${ssm:CLIENT_SECRET~true}
+    events:
+      - schedule: rate(5 minutes)
+
+resources:
+  Resources:
+    TranslationsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Delete
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}

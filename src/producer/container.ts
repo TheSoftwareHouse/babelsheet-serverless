@@ -21,7 +21,7 @@ export default function createContainer(
   container.register({
     googleAuth: awilix.asClass(GoogleAuth),
     googleSheets: awilix.asClass(GoogleSheets),
-    inEnvStorage: awilix.asClass(InEnvStorage),
+    inEnvStorage: awilix.asClass(InEnvStorage, { lifetime: awilix.Lifetime.SINGLETON }),
     logger: awilix.asValue(winstonLogger),
     port: awilix.asValue(process.env.PORT || 3000),
     storage: awilix.asClass(InRedisStorage),
