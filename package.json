@@ -21,7 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "awilix": "^3.0.6",
-    "aws-sdk": "^2.217.1",
+    "aws-sdk": "^2.814.0",
     "celebrate": "^7.0.4",
     "cors": "^2.8.4",
     "dot-prop-immutable": "^1.4.0",
